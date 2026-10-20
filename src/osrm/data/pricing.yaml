@@ -1,0 +1,21 @@
+# Hourly price table used by `osrm cost estimate`. Replace with your provider's rates.
+# Prices are BDT per hour, loosely modelled on a Dhaka-hosted public cloud.
+currency: BDT
+hours_per_month: 730
+
+flavors:
+  m1.small:   2.50
+  m1.medium:  5.00
+  m1.large:   10.00
+  m1.xlarge:  20.00
+  c2.highcpu: 36.00
+
+# Fallback when a flavor name is missing above: price per vCPU-hour and per GB-RAM-hour.
+fallback:
+  per_vcpu_hour: 2.00
+  per_ram_gb_hour: 0.60
+
+volume_gb_hour: 0.00020       # ~0.146 BDT per GB-month
+snapshot_gb_hour: 0.00010
+floating_ip_hour: 0.50        # charged whether or not it is attached
+stopped_server_discount: 1.0  # 1.0 = SHUTOFF servers are free (compute); 0.0 = full price
