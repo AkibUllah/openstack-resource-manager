@@ -1,0 +1,10 @@
+# Copy to ~/.osrm.toml. Environment variables (OSRM_*) override these values.
+backend = "openstack"      # or "fake"
+cloud = "dhaka-prod"       # entry in clouds.yaml
+# pricing = "/etc/osrm/pricing-bdt.yaml"
+
+[audit]
+idle_days = 14
+idle_cpu_percent = 5
+oversized_cpu_percent = 10
+oversized_min_vcpus = 4

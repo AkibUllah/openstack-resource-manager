@@ -1,0 +1,13 @@
+# Standard openstacksdk clouds.yaml. osrm reuses it unchanged via `cloud = "<name>"` / OS_CLOUD.
+clouds:
+  dhaka-prod:
+    auth:
+      auth_url: https://keystone.dhaka-1.example.net:5000/v3
+      username: osrm-readonly
+      password: "set-via-OS_PASSWORD-or-a-secret-store"
+      project_name: platform-ops
+      user_domain_name: Default
+      project_domain_name: Default
+    region_name: dhaka-1
+    interface: public
+    identity_api_version: 3

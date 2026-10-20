@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openstack-resource-manager"
+version = "0.1.0"
+description = "Typer CLI and library to inventory, audit and cost-estimate OpenStack resources."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Akib Jafor" }]
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Environment :: Console",
+  "Topic :: System :: Systems Administration",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "typer>=0.9",
+  "rich>=13.0",
+  "PyYAML>=6.0",
+  "tomli>=2.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+openstack = ["openstacksdk>=2.0"]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.3",
+]
+
+[project.scripts]
+osrm = "osrm.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/AkibUllah/openstack-resource-manager"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+osrm = ["data/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "W"]
+ignore = ["B008"]
