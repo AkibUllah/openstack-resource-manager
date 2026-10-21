@@ -8,6 +8,15 @@ Typer CLI and Python library to inventory OpenStack resources, find idle and orp
 ![Typer](https://img.shields.io/badge/CLI-Typer%20%2B%20Rich-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+## Try it live
+
+| | |
+|---|---|
+| Run in your browser | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/AkibUllah/openstack-resource-manager?quickstart=1) — installs `osrm` against the bundled fake cloud (`OSRM_BACKEND=fake`) and runs `osrm audit` when the terminal opens; then try `osrm servers list`, `osrm cost estimate --project pathao-prod`, `osrm export --format json` |
+| Local | `make install demo` or `docker build -t osrm . && docker run --rm osrm audit` (see Quick Start) |
+
+No hosted page: `osrm` is a CLI that talks to an OpenStack cloud (or the fixture backend), so the Codespace is the demo.
+
 ## Why this exists
 
 Operating an OpenStack cloud for internal teams, the same questions came up every month: which servers have been SHUTOFF since a project ended, which 500 GB volumes are attached to nothing, who is holding floating IPs they never routed, and what does each project actually cost at our flavor prices. The `openstack` CLI answers none of these directly. `osrm` wraps the SDK behind a small `CloudClient` protocol so the audit and cost logic is plain Python, ships a fixture-backed `FakeCloudClient` so everything can be demoed and tested without a cloud, and renders results as Rich tables, JSON or CSV for the finance spreadsheet.

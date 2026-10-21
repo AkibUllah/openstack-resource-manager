@@ -1,0 +1,21 @@
+{
+  "name": "openstack-resource-manager",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.11-bookworm",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb"
+  },
+  "containerEnv": {
+    "OSRM_BACKEND": "fake"
+  },
+  "postCreateCommand": "pip install --upgrade pip && pip install -e \".[dev]\" && cp -n .env.example .env",
+  "postAttachCommand": "osrm audit && echo 'Try: osrm servers list | osrm cost estimate --project pathao-prod | osrm export --format json'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff"
+      ]
+    }
+  }
+}
