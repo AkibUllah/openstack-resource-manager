@@ -1,3 +1,4 @@
+<!-- topics: openstack,python,cli,typer,cloud,devops,cost-optimization,infrastructure -->
 # OpenStack Resource Manager (osrm)
 
 Typer CLI and Python library to inventory OpenStack resources, find idle and orphaned ones, and estimate what each project costs per month.
