@@ -81,8 +81,8 @@ def test_thresholds_change_results(client, table):
 
 
 def test_project_scope_and_filters(client, table):
-    report = run_audit(client, table, project_id="p-bkash-sandbox")
-    assert {f.project_id for f in report.findings} == {"p-bkash-sandbox"}
+    report = run_audit(client, table, project_id="p-cashwallet-sandbox")
+    assert {f.project_id for f in report.findings} == {"p-cashwallet-sandbox"}
     only_high = report.filter(min_severity="high")
     assert all(f.severity == "high" for f in only_high)
     volumes = report.filter(kinds={"orphaned_volume"})

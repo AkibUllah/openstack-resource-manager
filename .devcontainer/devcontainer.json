@@ -9,7 +9,7 @@
     "OSRM_BACKEND": "fake"
   },
   "postCreateCommand": "pip install --upgrade pip && pip install -e \".[dev]\" && cp -n .env.example .env",
-  "postAttachCommand": "osrm audit && echo 'Try: osrm servers list | osrm cost estimate --project pathao-prod | osrm export --format json'",
+  "postAttachCommand": "osrm audit && echo 'Try: osrm servers list | osrm cost estimate --project rideshare-prod | osrm export --format json'",
   "customizations": {
     "vscode": {
       "extensions": [

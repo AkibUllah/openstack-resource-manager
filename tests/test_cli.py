@@ -27,7 +27,7 @@ def test_servers_list_table_and_json(runner, env):
         "servers",
         "list",
         "--project",
-        "bkash-sandbox",
+        "cashwallet-sandbox",
         "--status",
         "shutoff",
         "-f",
@@ -36,7 +36,7 @@ def test_servers_list_table_and_json(runner, env):
     assert r.exit_code == 0, r.output
     rows = json.loads(r.output)
     assert [row["name"] for row in rows] == ["legacy-sim"]
-    assert rows[0]["project"] == "bkash-sandbox"
+    assert rows[0]["project"] == "cashwallet-sandbox"
 
 
 def test_servers_show(runner, env):
@@ -87,7 +87,7 @@ def test_volumes_orphaned_and_ips_unused(runner, env):
         "scratch",
         "tmp-restore-test",
     ]
-    r = invoke(runner, env, "ips", "list", "--unused", "--project", "pathao-prod", "-f", "csv")
+    r = invoke(runner, env, "ips", "list", "--unused", "--project", "rideshare-prod", "-f", "csv")
     assert r.exit_code == 0, r.output
     rows = list(csv.DictReader(io.StringIO(r.output)))
     assert [row["address"] for row in rows] == ["103.120.8.12"]
@@ -121,17 +121,17 @@ def test_audit_table_and_json(runner, env):
 
 
 def test_cost_estimate(runner, env):
-    r = invoke(runner, env, "cost", "estimate", "--project", "pathao-prod")
+    r = invoke(runner, env, "cost", "estimate", "--project", "rideshare-prod")
     assert r.exit_code == 0, r.output
-    assert "45800.20 BDT/month" in r.output and "pathao-prod" in r.output
+    assert "45800.20 BDT/month" in r.output and "rideshare-prod" in r.output
 
     r = invoke(runner, env, "cost", "estimate", "--format", "json", "--detail")
     assert r.exit_code == 0, r.output
     payload = json.loads(r.output)
     assert payload["currency"] == "BDT" and set(payload["by_project"]) == {
-        "pathao-prod",
-        "chaldal-staging",
-        "bkash-sandbox",
+        "rideshare-prod",
+        "grocer-staging",
+        "cashwallet-sandbox",
     }
     assert len(payload["lines"]) == 12 + 11 + 8
     assert payload["unpriced_flavors"] == []
@@ -144,7 +144,14 @@ def test_cost_estimate_with_custom_pricing(runner, env, tmp_path):
         "fallback:\n  per_vcpu_hour: 0.02\n  per_ram_gb_hour: 0\n"
     )
     r = invoke(
-        runner, env, "cost", "estimate", "--pricing", str(pricing), "--project", "bkash-sandbox"
+        runner,
+        env,
+        "cost",
+        "estimate",
+        "--pricing",
+        str(pricing),
+        "--project",
+        "cashwallet-sandbox",
     )
     assert r.exit_code == 0, r.output
     assert (
@@ -176,9 +183,9 @@ def test_export_to_file_and_stdout(runner, env, tmp_path):
 def test_projects_and_bad_inputs(runner, env):
     r = invoke(runner, env, "projects", "-f", "json")
     assert [p["name"] for p in json.loads(r.output)] == [
-        "bkash-sandbox",
-        "chaldal-staging",
-        "pathao-prod",
+        "cashwallet-sandbox",
+        "grocer-staging",
+        "rideshare-prod",
     ]
     r = invoke(runner, env, "servers", "list", "--project", "nope")
     assert r.exit_code == 2 and "not found" in r.output

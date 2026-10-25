@@ -17,7 +17,7 @@ def test_to_row_flattens_enums_dates_and_tuples(client):
 
 
 def test_json_and_csv_roundtrip(client):
-    rows = [to_row(v) for v in client.list_volumes("p-bkash-sandbox")]
+    rows = [to_row(v) for v in client.list_volumes("p-cashwallet-sandbox")]
     parsed = json.loads(to_json(rows))
     assert [r["id"] for r in parsed] == ["vol-10", "vol-09", "vol-11"]
 

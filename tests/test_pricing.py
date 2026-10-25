@@ -32,7 +32,7 @@ def test_stopped_servers_do_not_pay_for_compute(client, table):
 
 
 def test_estimate_totals_add_up(client, table):
-    est = estimate_costs(client, table, project_id="p-pathao-prod")
+    est = estimate_costs(client, table, project_id="p-rideshare-prod")
     # ACTIVE: api-1 + api-2 (m1.large 10 each) + db-primary (c2.highcpu 36) + cache-1 (m1.medium 5)
     servers = sum(ln.hourly for ln in est.lines if ln.resource_type == "server")
     assert servers == D("61.00")
@@ -43,7 +43,7 @@ def test_estimate_totals_add_up(client, table):
     assert est.hourly_total == servers + volumes + fips
     assert money(est.monthly_total) == money(est.hourly_total * 730) == D("45800.20")
     assert set(est.by_type()) == {"server", "volume", "floating_ip"}
-    assert list(est.by_project()) == ["p-pathao-prod"]
+    assert list(est.by_project()) == ["p-rideshare-prod"]
     assert est.unpriced == []
 
 
