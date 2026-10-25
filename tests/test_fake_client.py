@@ -24,8 +24,8 @@ def test_fixtures_are_internally_consistent(client):
 
 
 def test_project_filter_and_name_lookup(client):
-    prod = client.list_servers("p-pathao-prod")
-    assert {s.project_id for s in prod} == {"p-pathao-prod"} and len(prod) == 5
+    prod = client.list_servers("p-rideshare-prod")
+    assert {s.project_id for s in prod} == {"p-rideshare-prod"} and len(prod) == 5
     assert client.get_server("db-primary").id == "srv-03"
     with pytest.raises(NotFound):
         client.get_server("does-not-exist")
@@ -61,7 +61,7 @@ def test_orphaned_and_unused_helpers(client):
     assert orphaned == {"vol-04", "vol-07", "vol-08", "vol-10"}
     unused = {f.address for f in client.list_floating_ips() if f.is_unused}
     assert unused == {"103.120.8.12", "103.120.8.21", "103.120.8.22", "103.120.8.31"}
-    assert [n.name for n in client.list_networks("p-bkash-sandbox")] == [
-        "bkash-sandbox-net",
+    assert [n.name for n in client.list_networks("p-cashwallet-sandbox")] == [
+        "cashwallet-sandbox-net",
         "public",
     ]

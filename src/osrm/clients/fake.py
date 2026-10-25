@@ -31,9 +31,9 @@ def _ago(days: float) -> datetime:
 
 
 PROJECTS = [
-    Project("p-pathao-prod", "pathao-prod", "Ride-hailing production workloads"),
-    Project("p-chaldal-staging", "chaldal-staging", "Grocery platform staging + CI runners"),
-    Project("p-bkash-sandbox", "bkash-sandbox", "Payment integration sandbox"),
+    Project("p-rideshare-prod", "rideshare-prod", "Ride-hailing production workloads"),
+    Project("p-grocer-staging", "grocer-staging", "Grocery platform staging + CI runners"),
+    Project("p-cashwallet-sandbox", "cashwallet-sandbox", "Payment integration sandbox"),
 ]
 
 FLAVORS = [
@@ -53,9 +53,14 @@ IMAGES = [
 
 NETWORKS = [
     Network("net-ext", "public", project_id="p-admin", external=True, subnets=("103.120.8.0/24",)),
-    Network("net-pathao", "pathao-internal", "p-pathao-prod", subnets=("10.10.0.0/20",)),
-    Network("net-chaldal", "chaldal-staging-net", "p-chaldal-staging", subnets=("10.20.0.0/22",)),
-    Network("net-bkash", "bkash-sandbox-net", "p-bkash-sandbox", subnets=("10.30.0.0/24",)),
+    Network("net-rideshare", "rideshare-internal", "p-rideshare-prod", subnets=("10.10.0.0/20",)),
+    Network("net-grocer", "grocer-staging-net", "p-grocer-staging", subnets=("10.20.0.0/22",)),
+    Network(
+        "net-cashwallet",
+        "cashwallet-sandbox-net",
+        "p-cashwallet-sandbox",
+        subnets=("10.30.0.0/24",),
+    ),
 ]
 
 
@@ -75,14 +80,14 @@ def _server(sid, name, status, flavor, image, project, created_days, updated_day
 
 
 SERVERS = [
-    # pathao-prod: busy API tier, one oversized DB box, one forgotten SHUTOFF worker
+    # rideshare-prod: busy API tier, one oversized DB box, one forgotten SHUTOFF worker
     _server(
         "srv-01",
         "api-1",
         ServerStatus.ACTIVE,
         "f-3",
         "img-2",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         210,
         2,
         "10.10.0.11",
@@ -94,7 +99,7 @@ SERVERS = [
         ServerStatus.ACTIVE,
         "f-3",
         "img-2",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         210,
         2,
         "10.10.0.12",
@@ -106,7 +111,7 @@ SERVERS = [
         ServerStatus.ACTIVE,
         "f-5",
         "img-1",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         400,
         1,
         "10.10.0.20",
@@ -118,7 +123,7 @@ SERVERS = [
         ServerStatus.SHUTOFF,
         "f-2",
         "img-1",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         300,
         45,
         "10.10.0.31",
@@ -130,20 +135,20 @@ SERVERS = [
         ServerStatus.ACTIVE,
         "f-2",
         "img-2",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         150,
         3,
         "10.10.0.40",
         {"role": "cache"},
     ),
-    # chaldal-staging: CI runners, one stopped last week (not idle yet), one ERROR box
+    # grocer-staging: CI runners, one stopped last week (not idle yet), one ERROR box
     _server(
         "srv-06",
         "ci-runner-1",
         ServerStatus.ACTIVE,
         "f-3",
         "img-3",
-        "p-chaldal-staging",
+        "p-grocer-staging",
         90,
         1,
         "10.20.0.5",
@@ -155,7 +160,7 @@ SERVERS = [
         ServerStatus.ACTIVE,
         "f-3",
         "img-3",
-        "p-chaldal-staging",
+        "p-grocer-staging",
         90,
         1,
         "10.20.0.6",
@@ -167,7 +172,7 @@ SERVERS = [
         ServerStatus.SHUTOFF,
         "f-2",
         "img-2",
-        "p-chaldal-staging",
+        "p-grocer-staging",
         60,
         6,
         "10.20.0.7",
@@ -178,19 +183,19 @@ SERVERS = [
         ServerStatus.ERROR,
         "f-1",
         "img-4",
-        "p-chaldal-staging",
+        "p-grocer-staging",
         20,
         20,
         "10.20.0.8",
     ),
-    # bkash-sandbox: tiny boxes, one xlarge "load test" machine barely used
+    # cashwallet-sandbox: tiny boxes, one xlarge "load test" machine barely used
     _server(
         "srv-10",
         "sandbox-api",
         ServerStatus.ACTIVE,
         "f-1",
         "img-2",
-        "p-bkash-sandbox",
+        "p-cashwallet-sandbox",
         120,
         4,
         "10.30.0.10",
@@ -201,7 +206,7 @@ SERVERS = [
         ServerStatus.ACTIVE,
         "f-4",
         "img-1",
-        "p-bkash-sandbox",
+        "p-cashwallet-sandbox",
         75,
         30,
         "10.30.0.11",
@@ -213,7 +218,7 @@ SERVERS = [
         ServerStatus.SHUTOFF,
         "f-2",
         "img-1",
-        "p-bkash-sandbox",
+        "p-cashwallet-sandbox",
         500,
         120,
         "10.30.0.12",
@@ -237,7 +242,7 @@ VOLUMES = [
         "api-1-root",
         80,
         VolumeStatus.IN_USE,
-        "p-pathao-prod",
+        "p-rideshare-prod",
         _ago(210),
         ("srv-01",),
         bootable=True,
@@ -247,40 +252,52 @@ VOLUMES = [
         "api-2-root",
         80,
         VolumeStatus.IN_USE,
-        "p-pathao-prod",
+        "p-rideshare-prod",
         _ago(210),
         ("srv-02",),
         bootable=True,
     ),
-    Volume("vol-03", "db-data", 500, VolumeStatus.IN_USE, "p-pathao-prod", _ago(400), ("srv-03",)),
-    Volume("vol-04", "db-backup-2025-12", 500, VolumeStatus.AVAILABLE, "p-pathao-prod", _ago(300)),
+    Volume(
+        "vol-03", "db-data", 500, VolumeStatus.IN_USE, "p-rideshare-prod", _ago(400), ("srv-03",)
+    ),
+    Volume(
+        "vol-04", "db-backup-2025-12", 500, VolumeStatus.AVAILABLE, "p-rideshare-prod", _ago(300)
+    ),
     Volume(
         "vol-05",
         "worker-old-root",
         40,
         VolumeStatus.IN_USE,
-        "p-pathao-prod",
+        "p-rideshare-prod",
         _ago(300),
         ("srv-04",),
         bootable=True,
     ),
     Volume(
-        "vol-06", "ci-cache", 200, VolumeStatus.IN_USE, "p-chaldal-staging", _ago(90), ("srv-06",)
+        "vol-06", "ci-cache", 200, VolumeStatus.IN_USE, "p-grocer-staging", _ago(90), ("srv-06",)
     ),
-    Volume("vol-07", "scratch", 100, VolumeStatus.AVAILABLE, "p-chaldal-staging", _ago(40)),
-    Volume("vol-08", "tmp-restore-test", 50, VolumeStatus.AVAILABLE, "p-chaldal-staging", _ago(3)),
+    Volume("vol-07", "scratch", 100, VolumeStatus.AVAILABLE, "p-grocer-staging", _ago(40)),
+    Volume("vol-08", "tmp-restore-test", 50, VolumeStatus.AVAILABLE, "p-grocer-staging", _ago(3)),
     Volume(
-        "vol-09", "sandbox-data", 20, VolumeStatus.IN_USE, "p-bkash-sandbox", _ago(120), ("srv-10",)
+        "vol-09",
+        "sandbox-data",
+        20,
+        VolumeStatus.IN_USE,
+        "p-cashwallet-sandbox",
+        _ago(120),
+        ("srv-10",),
     ),
-    Volume("vol-10", "loadtest-results", 250, VolumeStatus.AVAILABLE, "p-bkash-sandbox", _ago(60)),
-    Volume("vol-11", "stuck-volume", 10, VolumeStatus.ERROR, "p-bkash-sandbox", _ago(15)),
+    Volume(
+        "vol-10", "loadtest-results", 250, VolumeStatus.AVAILABLE, "p-cashwallet-sandbox", _ago(60)
+    ),
+    Volume("vol-11", "stuck-volume", 10, VolumeStatus.ERROR, "p-cashwallet-sandbox", _ago(15)),
 ]
 
 FLOATING_IPS = [
     FloatingIP(
         "fip-01",
         "103.120.8.10",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         _ago(210),
         "net-ext",
         port_id="port-01",
@@ -290,37 +307,37 @@ FLOATING_IPS = [
     FloatingIP(
         "fip-02",
         "103.120.8.11",
-        "p-pathao-prod",
+        "p-rideshare-prod",
         _ago(210),
         "net-ext",
         port_id="port-02",
         server_id="srv-02",
         status="ACTIVE",
     ),
-    FloatingIP("fip-03", "103.120.8.12", "p-pathao-prod", _ago(100), "net-ext"),
+    FloatingIP("fip-03", "103.120.8.12", "p-rideshare-prod", _ago(100), "net-ext"),
     FloatingIP(
         "fip-04",
         "103.120.8.20",
-        "p-chaldal-staging",
+        "p-grocer-staging",
         _ago(90),
         "net-ext",
         port_id="port-06",
         server_id="srv-06",
         status="ACTIVE",
     ),
-    FloatingIP("fip-05", "103.120.8.21", "p-chaldal-staging", _ago(60), "net-ext"),
-    FloatingIP("fip-06", "103.120.8.22", "p-chaldal-staging", _ago(2), "net-ext"),
+    FloatingIP("fip-05", "103.120.8.21", "p-grocer-staging", _ago(60), "net-ext"),
+    FloatingIP("fip-06", "103.120.8.22", "p-grocer-staging", _ago(2), "net-ext"),
     FloatingIP(
         "fip-07",
         "103.120.8.30",
-        "p-bkash-sandbox",
+        "p-cashwallet-sandbox",
         _ago(120),
         "net-ext",
         port_id="port-10",
         server_id="srv-10",
         status="ACTIVE",
     ),
-    FloatingIP("fip-08", "103.120.8.31", "p-bkash-sandbox", _ago(75), "net-ext"),
+    FloatingIP("fip-08", "103.120.8.31", "p-cashwallet-sandbox", _ago(75), "net-ext"),
 ]
 
 
