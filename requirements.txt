@@ -1,6 +1,6 @@
 typer>=0.9
 rich>=13.0
 PyYAML>=6.0
-tomli>=2.0; python_version < '3.11'
+tomli>=2.5.0; python_version < '3.11'
 # optional, for the real OpenStack backend:
 # openstacksdk>=2.0
