@@ -4,6 +4,8 @@
 Typer CLI and Python library to inventory OpenStack resources, find idle and orphaned ones, and estimate what each project costs per month.
 
 [![CI](https://github.com/AkibUllah/openstack-resource-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/AkibUllah/openstack-resource-manager/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/AkibUllah/openstack-resource-manager/actions/workflows/codeql.yml/badge.svg)](https://github.com/AkibUllah/openstack-resource-manager/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/AkibUllah/openstack-resource-manager)](https://github.com/AkibUllah/openstack-resource-manager/releases)
 ![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-blue)
 ![Typer](https://img.shields.io/badge/CLI-Typer%20%2B%20Rich-purple)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -12,10 +14,20 @@ Typer CLI and Python library to inventory OpenStack resources, find idle and orp
 
 | | |
 |---|---|
-| Run in your browser | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/AkibUllah/openstack-resource-manager?quickstart=1) — installs `osrm` against the bundled fake cloud (`OSRM_BACKEND=fake`) and runs `osrm audit` when the terminal opens; then try `osrm servers list`, `osrm cost estimate --project pathao-prod`, `osrm export --format json` |
+| Run in your browser | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/AkibUllah/openstack-resource-manager?quickstart=1) — installs `osrm` against the bundled fake cloud (`OSRM_BACKEND=fake`) and runs `osrm audit` when the terminal opens; then try `osrm servers list`, `osrm cost estimate --project rideshare-prod`, `osrm export --format json` |
 | Local | `make install demo` or `docker build -t osrm . && docker run --rm osrm audit` (see Quick Start) |
 
 No hosted page: `osrm` is a CLI that talks to an OpenStack cloud (or the fixture backend), so the Codespace is the demo.
+
+## Screenshots
+
+![osrm audit](docs/images/audit.png)
+
+*`osrm audit` against the bundled fake cloud: 13 findings across three projects with severity, monthly saving and a recommendation for each.*
+
+![Servers and cost](docs/images/servers-cost.png)
+
+*`osrm servers list` and `osrm cost estimate` for one project, priced from the bundled flavor table.*
 
 ## Why this exists
 
@@ -81,7 +93,7 @@ pip install -e ".[dev]"
 export OSRM_BACKEND=fake
 osrm servers list
 osrm audit
-osrm cost estimate --project pathao-prod
+osrm cost estimate --project rideshare-prod
 ```
 
 ### Against a real cloud
@@ -125,26 +137,33 @@ Global flags: `--backend fake|openstack`, `--cloud NAME`, `--config PATH`, `--ve
 ### Sample output (fake backend)
 
 ```
-$ osrm audit
-                                  Audit findings (13)
-┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ severity ┃ kind               ┃ name              ┃ project_id        ┃ message                ┃ monthly_saving ┃ recommendation         ┃
-┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ high     │ idle_server        │ legacy-sim        │ p-bkash-sandbox   │ SHUTOFF for 120 days   │           0.00 │ Snapshot and delete,…  │
-│ high     │ orphaned_volume    │ db-backup-2025-12 │ p-pathao-prod     │ 500 GB available, …    │          73.00 │ Snapshot to object s…  │
-│ ...      │                    │                   │                   │                        │                │                        │
-└──────────┴────────────────────┴───────────────────┴───────────────────┴────────────────────────┴────────────────┴────────────────────────┘
-scanned 12 servers, 11 volumes, 8 floating_ips · potential saving 36266.40 BDT/month
+$ osrm audit --min-severity high
+                                                             Audit findings (4)
+┏━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ severity ┃ kind            ┃ name              ┃ project_id           ┃ message                ┃ monthly_saving ┃ recommendation         ┃
+┡━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ high     │ orphaned_volume │ db-backup-2025-12 │ p-rideshare-prod     │ 500 GB available,      │          73.00 │ Snapshot to object     │
+│          │                 │                   │                      │ unattached for 300     │                │ storage and delete     │
+│          │                 │                   │                      │ days                   │                │                        │
+│ high     │ orphaned_volume │ loadtest-results  │ p-cashwallet-sandbox │ 250 GB available,      │          36.50 │ Snapshot to object     │
+│          │                 │                   │                      │ unattached for 60 days │                │ storage and delete     │
+│ high     │ error_state     │ broken-import     │ p-grocer-staging     │ server in ERROR for 20 │           0.00 │ Rebuild or delete; it  │
+│          │                 │                   │                      │ days                   │                │ may still hold quota   │
+│ high     │ idle_server     │ legacy-sim        │ p-cashwallet-sandbox │ SHUTOFF for 120 days   │           0.00 │ Snapshot and delete,   │
+│          │                 │                   │                      │                        │                │ or document why it     │
+│          │                 │                   │                      │                        │                │ must stay              │
+└──────────┴─────────────────┴───────────────────┴──────────────────────┴────────────────────────┴────────────────┴────────────────────────┘
+scanned 12 servers, 11 volumes, 8 floating_ips · potential saving 109.50 BDT/month
 ```
 
 ```
-$ osrm cost estimate --project pathao-prod
-       Monthly cost by project
-┏━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
-┃ project     ┃  monthly ┃ currency ┃
-┡━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
-│ pathao-prod │ 45800.20 │ BDT      │
-└─────────────┴──────────┴──────────┘
+$ osrm cost estimate --project rideshare-prod
+        Monthly cost by project
+┏━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
+┃ project        ┃  monthly ┃ currency ┃
+┡━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━┩
+│ rideshare-prod │ 45800.20 │ BDT      │
+└────────────────┴──────────┴──────────┘
      Monthly cost by resource type
 ┏━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ resource_type ┃  monthly ┃ currency ┃
@@ -189,7 +208,7 @@ report = run_audit(client, table, AuditThresholds(idle_days=30))
 for finding in report.filter(min_severity="medium"):
     print(finding.kind, finding.name, finding.monthly_saving)
 
-estimate = estimate_costs(client, table, project_id="p-pathao-prod")
+estimate = estimate_costs(client, table, project_id="p-rideshare-prod")
 print(estimate.by_project(), estimate.monthly_total)
 ```
 
@@ -227,11 +246,11 @@ The `OpenStackClient` is not exercised in CI (it needs a cloud); it maps SDK obj
 
 ## Roadmap
 
-- Telemetry source for `get_server_metrics` on real clouds (Gnocchi / Prometheus exporter) so idle and oversized detection works beyond fixtures
-- `osrm audit --apply` to stop idle servers and release unused IPs in one reviewed batch
-- Snapshot and image audits (orphaned snapshots, images with no servers)
-- Scheduled report mode writing JSON/CSV to object storage and posting a summary to Slack
-- Quota view per project alongside usage
+- [ ] Telemetry source for `get_server_metrics` on real clouds (Gnocchi / Prometheus exporter) so idle and oversized detection works beyond fixtures (#1)
+- [ ] `osrm audit --apply` to stop idle servers and release unused IPs in one reviewed batch (#2)
+- [ ] Snapshot and image audits (orphaned snapshots, images with no servers) (#3)
+- [ ] Scheduled report mode writing JSON/CSV to object storage and posting a summary to Slack (#4)
+- [ ] Quota view per project alongside usage (#5)
 
 ## License
 
